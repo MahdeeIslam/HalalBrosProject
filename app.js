@@ -2,14 +2,22 @@
 const express = require('express'); 
 const path = require('path'); 
 const bodyParser = require('body-parser'); 
-const app = express(); 
+ejs = require('ejs')
 
+const PORT_NUMBER = 8080;
+
+const app = express(); 
+app.engine("html", ejs.renderFile);
+app.set("view engine", "html");
 //Potential routes
 
 
-
+app.listen(PORT_NUMBER, function () {
+    console.log(`Server is running at http://localhost:${PORT_NUMBER}`)
+});
 //route for homepage
 app.get('/', (req, res) => {
+    res.render('index');
     //logic for homepage
 });
 
@@ -143,7 +151,6 @@ app.get('/', (req, res) => {
 // GET /admin/users -> Manage users (admin only)
 // GET /admin/restaurants -> View all restaurants (admin only)
 // GET /admin/reviews -> Monitor and manage reviews (admin only)
-
 
 
 
