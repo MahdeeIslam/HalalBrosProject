@@ -9,6 +9,24 @@ const PORT_NUMBER = 8080;
 const app = express(); 
 app.engine("html", ejs.renderFile);
 app.set("view engine", "html");
+
+// Middleware
+app.use(bodyParser.urlencoded({ extended: true })); // Parse form data
+app.use(bodyParser.json()); // Parse JSON data
+app.use(express.static(path.join(__dirname, 'public'))); // Serve static files
+app.use(session({
+    secret: 'IffatIsAGenius',
+    resave: false,
+    saveUninitialized: true
+}));
+
+// Set EJS as the template engine
+app.engine("html", ejs.renderFile);
+app.set("view engine", "html");
+app.set("views", path.join(__dirname, "views"));
+
+
+
 //Potential routes
 
 
@@ -22,18 +40,56 @@ app.get('/', (req, res) => {
 });
 
 // Authentication and User Management
+
 // POST /auth/signup
+app.post('/auth/signup', (req, res) => {
+    const { fullName, email, password } = req.body;
+    
+    // Dummy logic for signup (Replace with DB logic and need to make decision on what we using you feel)
+    req.session.user = { fullName, email };
+    res.redirect('/dashboard'); // Redirect to user dashboard after signup
+});
 
 
 
 // POST /auth/login
-
+app.post('/auth/login', (req, res) => {
+    const { email, password } = req.body;
+    
+    // Dummy authentication logic , idk how to do this and mine never workedd in 2095
+    if (email === "test@example.com" && password === "password") {
+        req.session.user = { email };
+        res.redirect('/dashboard');
+    } else {
+        res.send("Invalid login credentials");
+    }
+});
 
 
 // POST /auth/logout
+app.post('/auth/logout', (req, res) => {
+    req.session.destroy(() => {
+        res.redirect('/');
+    });
+});
 
 
 // GET /auth/me  (current logged in user)
+app.get('/auth/me', (req, res) => {
+    if (req.session.user) {
+        res.json(req.session.user);
+    } else {
+        res.status(401).send("Not logged in");
+    }
+});
+
+//GET /dashboard for user dashboard (after login/signup)
+app.get('/dashboard', (req, res) => {
+    if (!req.session.user) {
+        return res.redirect('/');
+    }
+    res.render('dashboard', { user: req.session.user });
+});
 
 
 
@@ -154,3 +210,6 @@ app.get('/', (req, res) => {
 
 
 
+app.listen(PORT_NUMBER, function () {
+    console.log(`Server is running at http://localhost:${PORT_NUMBER}`)
+});
